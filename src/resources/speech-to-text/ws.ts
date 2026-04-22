@@ -1,14 +1,16 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import * as WS from 'ws';
+import type * as WS from 'ws';
 import { SpeechToTextEmitter, buildURL } from './internal-base';
 import * as SpeechToTextAPI from './speech-to-text';
 import { Telnyx } from '../../client';
+import { requireWS } from '../../internal/ws';
 
 export class SpeechToTextWS extends SpeechToTextEmitter {
   url: URL;
   socket: WS.WebSocket;
   private client: Telnyx;
+  private _WS: typeof WS.WebSocket;
 
   constructor(
     client: Telnyx,
@@ -18,7 +20,8 @@ export class SpeechToTextWS extends SpeechToTextEmitter {
     super();
     this.client = client;
     this.url = buildURL(client, parameters);
-    this.socket = new WS.WebSocket(this.url, {
+    this._WS = requireWS().WebSocket;
+    this.socket = new this._WS(this.url, {
       ...options,
       headers: {
         ...this.authHeaders(),
@@ -88,7 +91,7 @@ export class SpeechToTextWS extends SpeechToTextEmitter {
    * Check if the WebSocket is open and ready to send data.
    */
   get isOpen(): boolean {
-    return this.socket.readyState === WS.WebSocket.OPEN;
+    return this.socket.readyState === this._WS.OPEN;
   }
 
   /**
@@ -96,7 +99,7 @@ export class SpeechToTextWS extends SpeechToTextEmitter {
    */
   waitForOpen(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.socket.readyState === WS.WebSocket.OPEN) {
+      if (this.socket.readyState === this._WS.OPEN) {
         resolve();
         return;
       }

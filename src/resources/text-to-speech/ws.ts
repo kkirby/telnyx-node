@@ -1,20 +1,23 @@
 // File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-import * as WS from 'ws';
+import type * as WS from 'ws';
 import { TextToSpeechEmitter, TextToSpeechStreamMessage, WebSocketError, buildURL } from './internal-base';
 import * as TextToSpeechAPI from './text-to-speech';
 import { Telnyx } from '../../client';
+import { requireWS } from '../../internal/ws';
 
 export class TextToSpeechWS extends TextToSpeechEmitter {
   url: URL;
   socket: WS.WebSocket;
   private client: Telnyx;
+  private _WS: typeof WS.WebSocket;
 
   constructor(client: Telnyx, parameters?: null | undefined, options?: WS.ClientOptions | null | undefined) {
     super();
     this.client = client;
     this.url = buildURL(client, parameters);
-    this.socket = new WS.WebSocket(this.url, {
+    this._WS = requireWS().WebSocket;
+    this.socket = new this._WS(this.url, {
       ...options,
       headers: {
         ...this.authHeaders(),
@@ -145,16 +148,16 @@ export class TextToSpeechWS extends TextToSpeechEmitter {
     this.socket.on('close', onClose);
 
     switch (this.socket.readyState) {
-      case WS.WebSocket.CONNECTING:
+      case this._WS.CONNECTING:
         push({ type: 'connecting' });
         break;
-      case WS.WebSocket.OPEN:
+      case this._WS.OPEN:
         push({ type: 'open' });
         break;
-      case WS.WebSocket.CLOSING:
+      case this._WS.CLOSING:
         push({ type: 'closing' });
         break;
-      case WS.WebSocket.CLOSED:
+      case this._WS.CLOSED:
         push({ type: 'close' });
         done = true;
         cleanup();
