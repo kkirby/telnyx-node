@@ -4,16 +4,7 @@ import type * as WS from 'ws';
 import { TextToSpeechEmitter, TextToSpeechStreamMessage, WebSocketError, buildURL } from './internal-base';
 import * as TextToSpeechAPI from './text-to-speech';
 import { Telnyx } from '../../client';
-
-function requireWS(): typeof WS {
-  try {
-    return require('ws');
-  } catch {
-    throw new Error(
-      'The `ws` package is required for WebSocket connections. Install it with: npm install ws',
-    );
-  }
-}
+import { requireWS } from '../../internal/ws';
 
 export class TextToSpeechWS extends TextToSpeechEmitter {
   url: URL;
